@@ -260,10 +260,16 @@
       } else if (res.status === 409){
         status.textContent = "هذا البريد الإلكتروني مسجّل مسبقًا."; status.className = "status bad";
       } else {
-        throw new Error("failed " + res.status);
+        let detail = "";
+        try { const j = await res.json(); detail = j.message || j.hint || j.code || ""; } catch(_){}
+        console.error("Supabase error", res.status, detail);
+        status.textContent = "تعذّر إرسال التسجيل (خطأ " + res.status + (detail ? ": " + detail : "") + ").";
+        status.className = "status bad";
+        return;
       }
     }catch(err){
-      status.textContent = "تعذّر إرسال التسجيل. تحقق من الاتصال وحاول مرة أخرى."; status.className = "status bad";
+      console.error("Network error", err);
+      status.textContent = "تعذّر الاتصال بالخادم (" + (err && err.message ? err.message : "network") + "). تحقق من الاتصال وحاول مرة أخرى."; status.className = "status bad";
     }finally{
       btn.disabled = false; btn.textContent = "سجّل الآن";
     }
