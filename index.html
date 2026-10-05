@@ -191,7 +191,7 @@
 <script>
   // Supabase: ضع هنا مفتاح anon / publishable (مفتاح عام ومخصص للمتصفح). لا تضع service_role أبدًا.
   const SUPABASE_URL = "https://fwlwkshvrxhctplfbdfq.supabase.co";
-  const SUPABASE_KEY = "sb_publishable__YvkD5iBjpu6BCFnrjkeAQ_kWc0QPYk7g8j3k";
+  const SUPABASE_KEY = "sb_publishable__YvkD5iBjpu6BCFnrjkeAQ_kWc0QPYk";
 
   const $ = id => document.getElementById(id);
   const form = $("f"), btn = $("btn"), status = $("status");
@@ -260,16 +260,10 @@
       } else if (res.status === 409){
         status.textContent = "هذا البريد الإلكتروني مسجّل مسبقًا."; status.className = "status bad";
       } else {
-        let detail = "";
-        try { const j = await res.json(); detail = j.message || j.hint || j.code || ""; } catch(_){}
-        console.error("Supabase error", res.status, detail);
-        status.textContent = "تعذّر إرسال التسجيل (خطأ " + res.status + (detail ? ": " + detail : "") + ").";
-        status.className = "status bad";
-        return;
+        throw new Error("failed " + res.status);
       }
     }catch(err){
-      console.error("Network error", err);
-      status.textContent = "تعذّر الاتصال بالخادم (" + (err && err.message ? err.message : "network") + "). تحقق من الاتصال وحاول مرة أخرى."; status.className = "status bad";
+      status.textContent = "تعذّر إرسال التسجيل. تحقق من الاتصال وحاول مرة أخرى."; status.className = "status bad";
     }finally{
       btn.disabled = false; btn.textContent = "سجّل الآن";
     }
